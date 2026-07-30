@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Site Seismic Vibration & Inspection Prioritization</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="app-header">
+        <div class="container header-content">
+            <div class="brand">
+                <div>
+                    <h1 class="brand-title">Seismic Monitoring & Multi-Site Prioritization</h1>
+                    <p class="brand-subtitle">Maasin City, Southern Leyte • DepEd CDRRM & LGU-DRRMO</p>
+                </div>
+            </div>
+
+            <!-- Hardware Telemetry Indicators -->
+            <div class="hardware-status">
+                <div class="status-badge">
+                    <span>Solar: <strong class="text-emerald">Active (4.1V)</strong></span>
+                </div>
+                <div class="status-badge">
+                    <span>ESP32 Mesh: <strong class="text-emerald">4 Nodes Active</strong></span>
+                </div>
+                <div class="status-badge">
+                    <span>GSM Fallback: <strong class="text-emerald">Ready</strong></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="container main-layout">
+
+        <!-- Section Title -->
+        <div class="section-title-wrapper">
+            <h2 class="section-title">School Telemetry & Individual Vibration Waveforms</h2>
+            <p class="section-subtitle">Simulate earthquake vibrations independently for each school facility to observe real-time score reprioritization.</p>
+        </div>
+
+        <!-- Multi-School Cards Grid -->
+        <section id="schools-grid" class="schools-grid">
+            <!-- Dynamically populated via script.js -->
+        </section>
+
+        <!-- Prioritization Table -->
+        <section class="card table-card">
+            <div class="table-header">
+                <div>
+                    <h2 class="table-title">Automated Post-Earthquake Inspection Prioritization Ranking</h2>
+                    <p class="table-subtitle">Dynamic sorting based on live Peak Ground Acceleration (PGA), Building Age, Student Occupancy, and Structural Type</p>
+                </div>
+                <button id="btn-refresh" class="btn btn-slate btn-sm">Refresh Matrix</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Priority Rank</th>
+                            <th>School / Building Facility</th>
+                            <th>PGA Recorded</th>
+                            <th>Dominant Freq</th>
+                            <th>Building Age</th>
+                            <th>Occupancy</th>
+                            <th>ATC-20 Status</th>
+                            <th class="text-right">Weighted Priority Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="priorityTableBody">
+                        <!-- Populated dynamically via script.js -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- System Log Container -->
+        <section class="card log-card">
+            <h2 class="log-title">Automated Alert Dispatch & System Activity Log</h2>
+            <div id="alert-log-list" class="log-list">
+                <div class="log-item">
+                    <div class="log-left">
+                        <span class="log-time">08:30:15 AM</span>
+                        <span class="tag tag-info">INFO</span>
+                        <span class="log-msg">Multi-node seismic sensing mesh online. All 4 school monitoring stations active.</span>
+                    </div>
+                    <span class="log-source">System Mesh</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+</body>
+</html>
