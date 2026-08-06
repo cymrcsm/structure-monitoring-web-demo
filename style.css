@@ -1,16 +1,27 @@
-/* Core Variables & Reset */
+
 :root {
-    --bg-main: #0f172a;
-    --card-bg: #1e293b;
-    --card-border: #334155;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
+    --bg-main: #040809;
+    --card-bg: rgba(10, 20, 23, 0.75);
+    --card-bg-solid: #0a1417;
+    --card-border: rgba(149, 201, 220, 0.25);
+    --card-border-hover: rgba(43, 179, 229, 0.4);
     
-    --cyan: #38bdf8;
-    --purple: #c084fc;
-    --emerald: #34d399;
-    --amber: #fbbf24;
-    --rose: #f43f5e;
+    --text-main: #e6edef;
+    --text-muted: #8daab6;
+
+    --primary: #95c9dc;
+    --primary-glow: rgba(149, 201, 220, 0.25);
+    
+    --secondary: #1d6884;
+    --secondary-glow: rgba(29, 104, 132, 0.35);
+    
+    --accent: #2bb3e5;
+    --accent-glow: rgba(43, 179, 229, 0.35);
+
+    /* Dedicated Status Colors */
+    --status-safe: #10b981;        /* Green */
+    --status-restricted: #f59e0b;  /* Yellow */
+    --status-unsafe: #ef4444;      /* Red */
 }
 
 * {
@@ -22,272 +33,483 @@
 body {
     background-color: var(--bg-main);
     color: var(--text-main);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 18px;
     line-height: 1.5;
     min-height: 100vh;
+    padding-bottom: 3rem;
 }
 
 .container {
-    max-width: 1320px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 1.5rem;
 }
 
-/* Header Navigation */
+/* ==========================================================================
+   Typography Hierarchy
+   ========================================================================== */
+
+.brand-title, .section-heading {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+.card-subtitle {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.body-text, p {
+    font-size: 18px;
+}
+
+.small-text, .brand-subtitle, .metric-label, .disclaimer-text, .table-hint, .log-item {
+    font-size: 14px;
+    font-weight: 400;
+}
+
+/* ==========================================================================
+   Header Navigation & Spacing
+   ========================================================================== */
+
 .app-header {
-    background-color: rgba(30, 41, 59, 0.9);
+    background: rgba(4, 8, 9, 0.85);
     border-bottom: 1px solid var(--card-border);
     position: sticky;
     top: 0;
-    z-index: 50;
-    backdrop-filter: blur(8px);
+    z-index: 100;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.6);
+    padding: 0 1.5rem;
 }
 
 .header-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 1rem;
+    padding: 1rem 0;
     flex-wrap: wrap;
+    gap: 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
     gap: 1rem;
 }
 
-.brand { display: flex; align-items: center; gap: 0.75rem; }
+.brand-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    border: 1px solid var(--accent);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 15px var(--accent-glow);
+}
 
-.brand-title { font-size: 1.125rem; font-weight: 700; }
-.brand-subtitle { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.35rem; }
+.brand-subtitle {
+    color: var(--text-muted);
+}
 
-.hardware-status { display: flex; gap: 0.75rem; flex-wrap: wrap; }
-.status-badge {
-    background: rgba(15, 23, 42, 0.8);
+/* Hardware Telemetry Outlined Badges */
+.hardware-status {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.status-pill {
+    background: transparent;
     border: 1px solid var(--card-border);
-    padding: 0.35rem 0.75rem;
-    border-radius: 0.375rem;
-    font-size: 0.75rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 8px;
+    font-size: 14px;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    color: var(--text-main);
 }
 
-/* Base Layout & Section Titles */
+/* ==========================================================================
+   Layout Containers & Outlined Cards
+   ========================================================================== */
+
 .main-layout {
-    padding-top: 1.5rem;
-    padding-bottom: 2rem;
+    margin-top: 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
 }
 
-.section-title-wrapper {
-    margin-bottom: -0.5rem;
-}
-.section-title {
-    font-size: 1.125rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-.section-subtitle {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-}
-
 .card {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
-    border-radius: 0.75rem;
-    padding: 1.25rem;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-/* Multi-School Cards Grid */
-.schools-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
-}
-
-@media (min-width: 768px) {
-    .schools-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-/* Individual School Card */
-.school-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 0.85rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.school-card.card-safe { border-left: 4px solid var(--emerald); }
-.school-card.card-restricted { border-left: 4px solid var(--amber); }
-.school-card.card-unsafe { 
-    border-left: 4px solid var(--rose); 
-    box-shadow: 0 0 15px rgba(244, 63, 94, 0.2);
-}
-
-.school-card-header {
+.card-header-flex {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
-.school-name { font-size: 0.95rem; font-weight: 700; color: #ffffff; }
-.school-meta { font-size: 0.725rem; color: var(--text-muted); }
-
-/* Live Telemetry Pill Bar inside Card */
-.telemetry-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
-    background: rgba(15, 23, 42, 0.6);
-    padding: 0.6rem;
-    border-radius: 0.5rem;
-    border: 1px solid rgba(51, 65, 85, 0.6);
-}
-
-.telemetry-item { text-align: center; }
-.telemetry-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
-.telemetry-val { font-size: 1.1rem; font-weight: 800; }
-
-/* Per-School Simulation Buttons */
-.card-sim-controls {
+/* Legal Disclaimer Callout */
+.disclaimer-card {
+    background: rgba(29, 104, 132, 0.15);
+    border: 1px solid var(--secondary);
+    border-radius: 12px;
+    padding: 0.85rem 1.25rem;
     display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 0 20px var(--secondary-glow);
 }
 
-.sim-btn-label { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); }
-.button-group-compact {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.35rem;
+.disclaimer-text {
+    color: var(--text-main);
+    line-height: 1.4;
 }
 
-.btn-xs {
-    padding: 0.35rem 0.25rem;
-    font-size: 0.68rem;
-    font-weight: 600;
-    border-radius: 0.375rem;
-    border: 1px solid transparent;
-    cursor: pointer;
-    text-align: center;
-    transition: transform 0.1s, background-color 0.15s;
+/* ==========================================================================
+   Simulation Control Bar
+   ========================================================================== */
+
+.sim-card {
+    background: linear-gradient(135deg, rgba(10, 20, 23, 0.9), rgba(4, 8, 9, 0.9));
+    border: 1px solid var(--primary);
+    box-shadow: 0 0 25px var(--primary-glow);
 }
 
-.btn-xs:active { transform: scale(0.95); }
-
-.btn-slate { background: #334155; color: var(--text-main); border-color: #475569; }
-.btn-slate:hover { background: #475569; }
-
-.btn-amber { background: rgba(217, 119, 6, 0.25); color: #fde68a; border-color: rgba(245, 158, 11, 0.4); }
-.btn-amber:hover { background: rgba(217, 119, 6, 0.45); }
-
-.btn-rose { background: rgba(225, 29, 72, 0.25); color: #fecdd3; border-color: rgba(244, 63, 94, 0.4); }
-.btn-rose:hover { background: rgba(225, 29, 72, 0.45); }
-
-/* Canvas Waveform Box */
-.school-canvas-container {
-    width: 100%;
-    height: 110px;
-    background: #0f172a;
-    border-radius: 0.5rem;
-    border: 1px solid var(--card-border);
-    position: relative;
-    overflow: hidden;
-}
-
-canvas { width: 100%; height: 100%; display: block; }
-
-/* Table Styling */
-.table-header {
+.sim-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 1rem;
 }
 
-.table-title { font-size: 1rem; font-weight: 700; }
-.table-subtitle { font-size: 0.75rem; color: var(--text-muted); }
-.table-wrapper { overflow-x: auto; }
+.sim-actions {
+    display: flex;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+}
+
+/* Transparent Outlined Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.1rem;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.btn:active { transform: scale(0.96); }
+
+.btn-outline {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+.btn-outline:hover {
+    background: var(--primary);
+    color: #040809;
+    box-shadow: 0 0 15px var(--primary-glow);
+}
+
+.btn-secondary {
+    border-color: var(--secondary);
+    color: var(--text-main);
+}
+.btn-secondary:hover {
+    background: var(--secondary);
+    color: #ffffff;
+    box-shadow: 0 0 15px var(--secondary-glow);
+}
+
+.btn-accent {
+    border-color: var(--accent);
+    color: var(--text-main);
+}
+.btn-accent:hover {
+    background: var(--accent);
+    color: #ffffff;
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+/* ==========================================================================
+   Prioritization Table (14px Text Size)
+   ========================================================================== */
+
+.table-wrapper {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+}
+
+.table-hint {
+    font-size: 14px;
+    color: var(--primary);
+    background: rgba(149, 201, 220, 0.1);
+    padding: 0.4rem 0.85rem;
+    border-radius: 20px;
+    border: 1px solid var(--primary);
+}
 
 .data-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.75rem;
+    font-size: 14px;
     text-align: left;
 }
 
 .data-table th {
-    background: rgba(15, 23, 42, 0.6);
+    background: rgba(4, 8, 9, 0.9);
     color: var(--text-muted);
-    padding: 0.75rem;
+    padding: 0.85rem 1rem;
     border-bottom: 1px solid var(--card-border);
     text-transform: uppercase;
+    font-size: 14px;
     letter-spacing: 0.05em;
+    white-space: nowrap;
 }
 
 .data-table td {
-    padding: 0.75rem;
-    border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid rgba(149, 201, 220, 0.15);
     transition: background-color 0.2s;
+    white-space: nowrap;
+    font-size: 14px;
 }
 
-.data-table tr:hover { background: rgba(51, 65, 85, 0.3); }
+/* Clickable Table Rows */
+.clickable-row {
+    cursor: pointer;
+}
 
-/* Rank #1 Highlighting */
+.clickable-row:hover {
+    background: rgba(149, 201, 220, 0.12) !important;
+}
+
 .rank-top {
-    background: rgba(244, 63, 94, 0.1) !important;
+    background: rgba(239, 68, 68, 0.1);
 }
 
-/* Activity Log */
-.log-title { font-size: 0.875rem; font-weight: 700; margin-bottom: 0.75rem; }
-.log-list { display: flex; flex-direction: column; gap: 0.5rem; max-height: 160px; overflow-y: auto; }
+/* Score Bar Visual Pill inside Table */
+.score-badge-container {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
 
-.log-item {
-    background: rgba(15, 23, 42, 0.8);
+.score-bar-bg {
+    width: 80px;
+    height: 8px;
+    background: rgba(4, 8, 9, 0.8);
     border: 1px solid var(--card-border);
-    padding: 0.5rem 0.75rem;
-    border-radius: 0.375rem;
-    font-size: 0.75rem;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.score-bar-fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 4px;
+}
+
+/* ==========================================================================
+   Activity Telemetry Feed
+   ========================================================================== */
+
+.log-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 1rem;
 }
 
-.log-left { display: flex; align-items: center; gap: 0.5rem; }
-.log-time { color: var(--text-muted); font-family: monospace; }
-.log-msg { color: #e2e8f0; }
-.log-source { color: #64748b; font-size: 0.65rem; }
+.log-list {
+    max-height: 170px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
 
-/* Status Badges */
-.tag {
-    padding: 0.15rem 0.45rem;
-    border-radius: 0.25rem;
-    font-size: 0.65rem;
+.log-list::-webkit-scrollbar { width: 6px; }
+.log-list::-webkit-scrollbar-track { background: var(--bg-main); }
+.log-list::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 3px; }
+
+.log-item {
+    background: rgba(4, 8, 9, 0.8);
+    padding: 0.65rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+}
+
+.log-time {
+    color: var(--text-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    margin-right: 0.5rem;
+}
+
+/* ==========================================================================
+   Bottom Facility Cards Grid & Large Canvas Graphs
+   ========================================================================== */
+
+.section-divider {
+    margin-top: 1rem;
+    margin-bottom: -0.25rem;
+}
+
+.facility-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.facility-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Facility Left Borders Match ATC-20 Risk Status */
+.facility-card.safe { border-left: 6px solid var(--status-safe); }
+.facility-card.restricted { border-left: 6px solid var(--status-restricted); }
+.facility-card.unsafe {
+    border-left: 6px solid var(--status-unsafe);
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.35);
+}
+
+/* Navigation Pulse Glow Animation */
+.facility-card.card-pulse {
+    animation: pulseBorder 1.5s ease-in-out 2;
+}
+
+@keyframes pulseBorder {
+    0% { transform: scale(1); box-shadow: 0 0 0px var(--accent); }
+    50% { transform: scale(1.02); box-shadow: 0 0 35px var(--accent); border-color: var(--accent); }
+    100% { transform: scale(1); box-shadow: 0 0 0px var(--accent); }
+}
+
+.facility-name {
+    font-size: 22px;
     font-weight: 700;
+    color: var(--text-main);
 }
 
-.tag-info { background: rgba(56, 189, 248, 0.2); color: var(--cyan); }
-.tag-warn { background: rgba(251, 191, 36, 0.2); color: var(--amber); }
-.tag-critical { background: rgba(244, 63, 94, 0.2); color: var(--rose); animation: pulse 1s infinite; }
+.facility-meta {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
 
-.tag-safe { background: rgba(52, 211, 153, 0.15); color: var(--emerald); border: 1px solid rgba(52, 211, 153, 0.3); }
-.tag-restricted { background: rgba(251, 191, 36, 0.15); color: var(--amber); border: 1px solid rgba(251, 191, 36, 0.3); }
-.tag-unsafe { background: rgba(244, 63, 94, 0.15); color: var(--rose); border: 1px solid rgba(244, 63, 94, 0.3); }
+/* Status Badges: Safe (Green), Restricted (Yellow), Unsafe (Red) */
+.status-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    padding: 0.35rem 0.85rem;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1;
+    background: transparent;
+}
 
-.text-cyan { color: var(--cyan); }
-.text-purple { color: var(--purple); }
-.text-emerald { color: var(--emerald); }
-.text-amber { color: var(--amber); }
-.text-rose { color: var(--rose); }
+.tag-safe { color: var(--status-safe); border: 1px solid var(--status-safe); }
+.tag-restricted { color: var(--status-restricted); border: 1px solid var(--status-restricted); }
+.tag-unsafe { color: var(--status-unsafe); border: 1px solid var(--status-unsafe); animation: flash 1s infinite alternate; }
+
+@keyframes flash { 0% { opacity: 1; } 100% { opacity: 0.4; } }
+
+/* Live Metrics Row */
+.metrics-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    background: rgba(4, 8, 9, 0.9);
+    padding: 0.85rem;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+    text-align: center;
+}
+
+.metric-label { font-size: 14px; color: var(--text-muted); text-transform: uppercase; }
+.metric-val { font-size: 24px; font-weight: 800; }
+
+/* EXPANDED 340px ACCELEROMETER CANVAS BOX */
+.canvas-box {
+    width: 100%;
+    height: 340px;
+    background: #020506;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.9);
+}
+
+canvas { width: 100%; height: 100%; display: block; }
+
+/* Custom Range Slider */
+.slider-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background: rgba(4, 8, 9, 0.6);
+    padding: 0.85rem;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+}
+
+.slider-label { font-size: 14px; color: var(--text-muted); display: flex; justify-content: space-between; }
+
+input[type=range] {
+    width: 100%;
+    height: 6px;
+    background: rgba(149, 201, 220, 0.2);
+    border-radius: 3px;
+    outline: none;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+/* Typography Helpers */
+.text-primary { color: var(--primary); }
+.text-secondary { color: var(--secondary); }
+.text-accent { color: var(--accent); }
+.text-muted { color: var(--text-muted); }
 .text-right { text-align: right; }
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}

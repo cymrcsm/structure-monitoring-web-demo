@@ -1,348 +1,400 @@
-document.addEventListener('DOMContentLoaded', () => {
+// Database of Monitored School Facilities in Maasin City
+const schools = [
+    {
+        id: 1,
+        name: "Manhilo Elementary School (Bldg A)",
+        age: 28, // years
+        occupancy: 420, // students & personnel
+        type: "Masonry / Concrete",
+        typeWeight: 70, // Vulnerability weight
+        pga: 0.02,
+        freq: 11.5,
+        status: "Safe",
+        score: 0,
+        xBuffer: new Array(60).fill(0.0),
+        yBuffer: new Array(60).fill(0.0),
+        zBuffer: new Array(60).fill(0.0) // Dynamic AC acceleration centered at 0g
+    },
+    {
+        id: 2,
+        name: "Manhilo National High School",
+        age: 18,
+        occupancy: 650,
+        type: "Reinforced Concrete",
+        typeWeight: 50,
+        pga: 0.02,
+        freq: 12.1,
+        status: "Safe",
+        score: 0,
+        xBuffer: new Array(60).fill(0.0),
+        yBuffer: new Array(60).fill(0.0),
+        zBuffer: new Array(60).fill(0.0)
+    },
+    {
+        id: 3,
+        name: "Maasin City Central School",
+        age: 36,
+        occupancy: 920,
+        type: "Timber / Concrete Hybrid",
+        typeWeight: 90,
+        pga: 0.02,
+        freq: 10.8,
+        status: "Safe",
+        score: 0,
+        xBuffer: new Array(60).fill(0.0),
+        yBuffer: new Array(60).fill(0.0),
+        zBuffer: new Array(60).fill(0.0)
+    },
+    {
+        id: 4,
+        name: "Asuncion National High School",
+        age: 12,
+        occupancy: 310,
+        type: "Reinforced Concrete Frame",
+        typeWeight: 40,
+        pga: 0.02,
+        freq: 13.0,
+        status: "Safe",
+        score: 0,
+        xBuffer: new Array(60).fill(0.0),
+        yBuffer: new Array(60).fill(0.0),
+        zBuffer: new Array(60).fill(0.0)
+    }
+];
 
-    const maxPoints = 50;
+// --- 1. Weighted Prioritization Algorithm ---
+function computePriorityScore(school) {
+    const pgaFactor = Math.min((school.pga / 0.50) * 100, 100) * 0.40;
+    const ageFactor = Math.min((school.age / 40) * 100, 100) * 0.25;
+    const occFactor = Math.min((school.occupancy / 1000) * 100, 100) * 0.20;
+    const typeFactor = school.typeWeight * 0.15;
 
-    // --- 1. Multi-School Database State ---
-    let schools = [
-        {
-            id: 1,
-            name: "Manhilo Elementary School (Bldg A)",
-            age: 28,
-            occupancy: 420,
-            structType: "Concrete Frame",
-            pga: 0.02,
-            freq: 12.4,
-            state: "ambient",
-            status: "Safe",
-            score: 0,
-            xBuffer: new Array(maxPoints).fill(0.01),
-            yBuffer: new Array(maxPoints).fill(0.01),
-            zBuffer: new Array(maxPoints).fill(0.98)
-        },
-        {
-            id: 2,
-            name: "Manhilo National High School",
-            age: 18,
-            occupancy: 650,
-            structType: "Masonry / Concrete",
-            pga: 0.02,
-            freq: 11.8,
-            state: "ambient",
-            status: "Safe",
-            score: 0,
-            xBuffer: new Array(maxPoints).fill(0.01),
-            yBuffer: new Array(maxPoints).fill(0.01),
-            zBuffer: new Array(maxPoints).fill(0.98)
-        },
-        {
-            id: 3,
-            name: "Maasin City Central School",
-            age: 35,
-            occupancy: 910,
-            structType: "Timber / Concrete Hybrid",
-            pga: 0.02,
-            freq: 13.1,
-            state: "ambient",
-            status: "Safe",
-            score: 0,
-            xBuffer: new Array(maxPoints).fill(0.01),
-            yBuffer: new Array(maxPoints).fill(0.01),
-            zBuffer: new Array(maxPoints).fill(0.98)
-        },
-        {
-            id: 4,
-            name: "Asuncion National High School",
-            age: 12,
-            occupancy: 310,
-            structType: "Reinforced Concrete",
-            pga: 0.02,
-            freq: 10.5,
-            state: "ambient",
-            status: "Safe",
-            score: 0,
-            xBuffer: new Array(maxPoints).fill(0.01),
-            yBuffer: new Array(maxPoints).fill(0.01),
-            zBuffer: new Array(maxPoints).fill(0.98)
-        }
-    ];
+    return parseFloat((pgaFactor + ageFactor + occFactor + typeFactor).toFixed(1));
+}
 
-    // --- 2. Build Multi-School Cards HTML dynamically ---
-    function renderSchoolCards() {
-        const container = document.getElementById('schools-grid');
-        container.innerHTML = "";
+// --- 2. ATC-20 / PHIVOLCS Classification Engine ---
+function classifyStatus(pga) {
+    if (pga >= 0.25) return "Unsafe";
+    if (pga >= 0.08) return "Restricted Use";
+    return "Safe";
+}
 
-        schools.forEach(school => {
-            let cardStatusClass = "card-safe";
-            let statusTagClass = "tag-safe";
-            if (school.status === "Restricted Use") { cardStatusClass = "card-restricted"; statusTagClass = "tag-restricted"; }
-            if (school.status === "Unsafe") { cardStatusClass = "card-unsafe"; statusTagClass = "tag-unsafe"; }
+// --- 3. UI Renderer for Bottom Facility Cards ---
+function renderUI() {
+    const grid = document.getElementById('facilityGrid');
+    grid.innerHTML = '';
 
-            const cardHTML = `
-                <div class="card school-card ${cardStatusClass}" id="card-school-${school.id}">
-                    <div class="school-card-header">
-                        <div>
-                            <div class="school-name">${school.name}</div>
-                            <div class="school-meta">Age: ${school.age} yrs • Occupancy: ${school.occupancy} • ${school.structType}</div>
-                        </div>
-                        <span id="badge-status-${school.id}" class="tag ${statusTagClass}">${school.status}</span>
+    schools.forEach(school => {
+        school.status = classifyStatus(school.pga);
+        school.score = computePriorityScore(school);
+
+        let cardClass = "safe";
+        let tagClass = "tag-safe";
+        if (school.status === "Restricted Use") { cardClass = "restricted"; tagClass = "tag-restricted"; }
+        if (school.status === "Unsafe") { cardClass = "unsafe"; tagClass = "tag-unsafe"; }
+
+        const cardHTML = `
+            <div class="card facility-card ${cardClass}" id="facility-card-${school.id}">
+                <div class="card-head" style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div>
+                        <div class="facility-name">${school.name}</div>
+                        <div class="facility-meta">Age: ${school.age} yrs • Occupancy: ${school.occupancy} • ${school.type}</div>
                     </div>
+                    <span class="status-tag ${tagClass}">${school.status}</span>
+                </div>
 
-                    <!-- Live Metrics Row -->
-                    <div class="telemetry-row">
-                        <div class="telemetry-item">
-                            <div class="telemetry-label">PGA Recorded</div>
-                            <div id="pga-${school.id}" class="telemetry-val text-cyan">${school.pga} g</div>
-                        </div>
-                        <div class="telemetry-item">
-                            <div class="telemetry-label">Frequency</div>
-                            <div id="freq-${school.id}" class="telemetry-val text-purple">${school.freq} Hz</div>
-                        </div>
-                        <div class="telemetry-item">
-                            <div class="telemetry-label">Rank Score</div>
-                            <div id="score-${school.id}" class="telemetry-val text-amber">${school.score} pts</div>
-                        </div>
+                <div class="metrics-row">
+                    <div>
+                        <div class="metric-label">Peak Accel</div>
+                        <div class="metric-val text-primary">${school.pga.toFixed(2)} g</div>
                     </div>
-
-                    <!-- Individual Canvas Waveform -->
-                    <div class="school-canvas-container">
-                        <canvas id="canvas-school-${school.id}"></canvas>
+                    <div>
+                        <div class="metric-label">Dom. Freq</div>
+                        <div class="metric-val text-accent">${school.freq.toFixed(1)} Hz</div>
                     </div>
-
-                    <!-- Per-School Simulation Button Panel -->
-                    <div class="card-sim-controls">
-                        <span class="sim-btn-label">Simulate Vibration for this Facility:</span>
-                        <div class="button-group-compact">
-                            <button onclick="setSchoolVibration(${school.id}, 'ambient')" class="btn-xs btn-slate">Ambient</button>
-                            <button onclick="setSchoolVibration(${school.id}, 'moderate')" class="btn-xs btn-amber">Moderate</button>
-                            <button onclick="setSchoolVibration(${school.id}, 'severe')" class="btn-xs btn-rose">Severe Quake</button>
-                        </div>
+                    <div>
+                        <div class="metric-label">Priority Score</div>
+                        <div class="metric-val text-primary">${school.score} pts</div>
                     </div>
                 </div>
-            `;
-            container.innerHTML += cardHTML;
-        });
 
-        // Resize contexts after building DOM
-        setTimeout(() => {
-            schools.forEach(school => {
-                const canvas = document.getElementById(`canvas-school-${school.id}`);
-                if (canvas) {
-                    canvas.width = canvas.parentElement.clientWidth;
-                    canvas.height = canvas.parentElement.clientHeight;
-                }
-            });
-        }, 50);
-    }
-
-    // --- 3. Per-School Simulation Handler ---
-    window.setSchoolVibration = function(schoolId, state) {
-        const school = schools.find(s => s.id === schoolId);
-        if (!school) return;
-
-        school.state = state;
-
-        if (state === 'ambient') {
-            school.pga = parseFloat((Math.random() * 0.03 + 0.01).toFixed(2));
-            school.freq = parseFloat((Math.random() * 4 + 10).toFixed(1));
-            school.status = "Safe";
-            addLogEntry(`[${school.name}] Shaking normalized to ambient levels.`, "INFO");
-        } else if (state === 'moderate') {
-            school.pga = parseFloat((Math.random() * 0.15 + 0.12).toFixed(2));
-            school.freq = parseFloat((Math.random() * 3 + 3).toFixed(1));
-            school.status = "Restricted Use";
-            addLogEntry(`[${school.name}] Moderate shaking registered (PGA: ${school.pga}g). Dispatched Web Alert.`, "WARN");
-        } else if (state === 'severe') {
-            school.pga = parseFloat((Math.random() * 0.45 + 0.35).toFixed(2));
-            school.freq = parseFloat((Math.random() * 2 + 1.2).toFixed(1));
-            school.status = "Unsafe";
-            addLogEntry(`[${school.name}] CRITICAL SEISMIC EXCEEDED (PGA: ${school.pga}g)! SMS Alert dispatched to LGU-DRRMO.`, "CRITICAL");
-        }
-
-        recalculateScoresAndSort();
-        updateSchoolCardUI(school);
-    };
-
-    // Update single card UI elements without full grid rebuild
-    function updateSchoolCardUI(school) {
-        const card = document.getElementById(`card-school-${school.id}`);
-        const pgaTxt = document.getElementById(`pga-${school.id}`);
-        const freqTxt = document.getElementById(`freq-${school.id}`);
-        const scoreTxt = document.getElementById(`score-${school.id}`);
-        const badge = document.getElementById(`badge-status-${school.id}`);
-
-        if (pgaTxt) pgaTxt.innerText = `${school.pga} g`;
-        if (freqTxt) freqTxt.innerText = `${school.freq} Hz`;
-        if (scoreTxt) scoreTxt.innerText = `${school.score} pts`;
-
-        if (card && badge) {
-            card.className = "card school-card";
-            if (school.status === "Safe") {
-                card.classList.add("card-safe");
-                badge.className = "tag tag-safe";
-            } else if (school.status === "Restricted Use") {
-                card.classList.add("card-restricted");
-                badge.className = "tag tag-restricted";
-            } else {
-                card.classList.add("card-unsafe");
-                badge.className = "tag tag-unsafe";
-            }
-            badge.innerText = school.status;
-        }
-    }
-
-    // --- 4. Prioritization Matrix Engine ---
-    function calculatePriorityScore(school) {
-        // Weighted formula: Severity PGA (40%) + Building Age (25%) + Occupancy (20%) + Structural Type (15%)
-        let severityFactor = school.pga * 100 * 0.40;
-        let ageFactor = Math.min(school.age, 40) * 0.25;
-        let occupancyFactor = Math.min(school.occupancy / 100, 10) * 0.20;
-        let typeFactor = (school.structType.includes("Timber") ? 10 : 5) * 0.15;
-
-        return parseFloat((severityFactor + ageFactor + occupancyFactor + typeFactor).toFixed(1));
-    }
-
-    function recalculateScoresAndSort() {
-        schools.forEach(school => {
-            school.score = calculatePriorityScore(school);
-            const scoreTxt = document.getElementById(`score-${school.id}`);
-            if (scoreTxt) scoreTxt.innerText = `${school.score} pts`;
-        });
-
-        renderRankingTable();
-    }
-
-    function renderRankingTable() {
-        // Sort descending by calculated weighted score
-        const sortedSchools = [...schools].sort((a, b) => b.score - a.score);
-
-        const tbody = document.getElementById('priorityTableBody');
-        tbody.innerHTML = "";
-
-        sortedSchools.forEach((school, index) => {
-            let tagClass = "tag-safe";
-            if (school.status === "Restricted Use") tagClass = "tag-restricted";
-            if (school.status === "Unsafe") tagClass = "tag-unsafe";
-
-            const isTopRank = index === 0 && school.pga > 0.05;
-
-            const row = `
-                <tr class="${isTopRank ? 'rank-top' : ''}">
-                    <td class="text-cyan" style="font-weight: 800;">#${index + 1} ${isTopRank ? '⚠️ HIGHEST PRIORITY' : ''}</td>
-                    <td style="font-weight: 700; color: #fff;">${school.name}</td>
-                    <td style="font-family: monospace;" class="${school.pga > 0.10 ? 'text-rose' : ''}">${school.pga} g</td>
-                    <td style="font-family: monospace;">${school.freq} Hz</td>
-                    <td>${school.age} yrs</td>
-                    <td>${school.occupancy} students</td>
-                    <td><span class="tag ${tagClass}">${school.status}</span></td>
-                    <td class="text-right text-amber" style="font-weight: 800; font-size: 0.85rem;">${school.score} pts</td>
-                </tr>
-            `;
-            tbody.innerHTML += row;
-        });
-    }
-
-    document.getElementById('btn-refresh').addEventListener('click', () => {
-        recalculateScoresAndSort();
-        addLogEntry("Manually re-indexed priority matrix.", "INFO");
-    });
-
-    // --- 5. Render Waveform Graphs for All Canvases ---
-    function renderAllWaveforms() {
-        schools.forEach(school => {
-            const canvas = document.getElementById(`canvas-school-${school.id}`);
-            if (!canvas) return;
-
-            const ctx = canvas.getContext('2d');
-            const w = canvas.width;
-            const h = canvas.height;
-
-            ctx.fillStyle = '#0f172a';
-            ctx.fillRect(0, 0, w, h);
-
-            // Draw gridline
-            ctx.strokeStyle = '#1e293b';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(0, h / 2);
-            ctx.lineTo(w, h / 2);
-            ctx.stroke();
-
-            // Draw X, Y, Z waveform buffers
-            drawAxisLine(ctx, school.xBuffer, '#38bdf8', w, h);
-            drawAxisLine(ctx, school.yBuffer, '#c084fc', w, h);
-            drawAxisLine(ctx, school.zBuffer, '#34d399', w, h);
-        });
-
-        requestAnimationFrame(renderAllWaveforms);
-    }
-
-    function drawAxisLine(ctx, buffer, color, width, height) {
-        ctx.beginPath();
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 1.2;
-
-        const step = width / (maxPoints - 1);
-        const midY = height / 2;
-        const scale = height / 3;
-
-        for (let i = 0; i < buffer.length; i++) {
-            const x = i * step;
-            const y = midY - (buffer[i] * scale) + (color === '#34d399' ? scale * 0.8 : 0);
-
-            if (i === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-        }
-        ctx.stroke();
-    }
-
-    // Stream Telemetry Data Simulation Loop
-    setInterval(() => {
-        schools.forEach(school => {
-            let noiseX, noiseY, noiseZ;
-            if (school.state === 'ambient') {
-                noiseX = (Math.random() - 0.5) * 0.04;
-                noiseY = (Math.random() - 0.5) * 0.04;
-                noiseZ = 0.98 + (Math.random() - 0.5) * 0.04;
-            } else if (school.state === 'moderate') {
-                noiseX = (Math.random() - 0.5) * 0.35;
-                noiseY = (Math.random() - 0.5) * 0.35;
-                noiseZ = 0.98 + (Math.random() - 0.5) * 0.35;
-            } else { // severe
-                noiseX = (Math.random() - 0.5) * 0.90;
-                noiseY = (Math.random() - 0.5) * 0.90;
-                noiseZ = 0.98 + (Math.random() - 0.5) * 0.90;
-            }
-
-            school.xBuffer.push(noiseX); school.xBuffer.shift();
-            school.yBuffer.push(noiseY); school.yBuffer.shift();
-            school.zBuffer.push(noiseZ); school.zBuffer.shift();
-        });
-    }, 150);
-
-    // --- 6. Helper Alert Log ---
-    function addLogEntry(message, level) {
-        const logContainer = document.getElementById('alert-log-list');
-        const timeStr = new Date().toLocaleTimeString();
-
-        let tagHTML = `<span class="tag tag-info">INFO</span>`;
-        if (level === "WARN") tagHTML = `<span class="tag tag-warn">WARNING</span>`;
-        else if (level === "CRITICAL") tagHTML = `<span class="tag tag-critical">SMS DISPATCHED</span>`;
-
-        const item = `
-            <div class="log-item">
-                <div class="log-left">
-                    <span class="log-time">${timeStr}</span>
-                    ${tagHTML}
-                    <span class="log-msg">${message}</span>
+                <!-- Custom Threshold Oscilloscope Canvas (340px) -->
+                <div class="canvas-box">
+                    <canvas id="canvas-${school.id}"></canvas>
                 </div>
-                <span class="log-source">SIM800L / Web</span>
+
+                <!-- Individual Shaking Level Control Slider -->
+                <div class="slider-box">
+                    <div class="slider-label">
+                        <span>Simulate Acceleration for this Facility:</span>
+                        <strong class="text-accent">${school.pga.toFixed(2)} g</strong>
+                    </div>
+                    <input type="range" min="0.01" max="0.50" step="0.01" value="${school.pga}" 
+                           oninput="updateFacilityPGA(${school.id}, this.value)">
+                </div>
             </div>
         `;
-        logContainer.innerHTML = item + logContainer.innerHTML;
-    }
+        grid.innerHTML += cardHTML;
+    });
 
-    // Initialize layout
-    renderSchoolCards();
-    recalculateScoresAndSort();
-    requestAnimationFrame(renderAllWaveforms);
+    renderTable();
+}
+
+// --- 4. Render Prioritization Ranking Table with Click-to-Scroll ---
+function renderTable() {
+    const sorted = [...schools].sort((a, b) => b.score - a.score);
+    const tbody = document.getElementById('priorityTableBody');
+    tbody.innerHTML = '';
+
+    sorted.forEach((school, index) => {
+        let tagClass = "tag-safe";
+        if (school.status === "Restricted Use") tagClass = "tag-restricted";
+        if (school.status === "Unsafe") tagClass = "tag-unsafe";
+
+        const isTopAlert = index === 0 && school.pga >= 0.08;
+        const scorePercent = Math.min((school.score / 100) * 100, 100);
+
+        const rowHTML = `
+            <tr class="clickable-row ${isTopAlert ? 'rank-top' : ''}" onclick="scrollToFacilityGraph(${school.id})">
+                <td class="text-primary" style="font-weight: 800; font-size: 14px;">#${index + 1} ${isTopAlert ? '⚠️ PRIORITY 1' : ''}</td>
+                <td style="color:#e6edef; font-weight:700; font-size: 14px;">${school.name}</td>
+                <td style="font-family:monospace; font-size: 14px;" class="${school.pga >= 0.25 ? 'text-accent' : ''}">${school.pga.toFixed(2)} g</td>
+                <td style="font-family:monospace; font-size: 14px;">${school.freq.toFixed(1)} Hz</td>
+                <td style="font-size: 14px;">${school.age} yrs</td>
+                <td style="font-size: 14px;">${school.occupancy} occupants</td>
+                <td><span class="status-tag ${tagClass}">${school.status}</span></td>
+                <td>
+                    <div class="score-badge-container">
+                        <span class="text-primary" style="font-weight:800; min-width: 45px; font-size: 14px;">${school.score} pts</span>
+                        <div class="score-bar-bg">
+                            <div class="score-bar-fill" style="width: ${scorePercent}%;"></div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        `;
+        tbody.innerHTML += rowHTML;
+    });
+}
+
+// --- 5. Interactive Scroll-to-Graph Function ---
+window.scrollToFacilityGraph = function(schoolId) {
+    const card = document.getElementById(`facility-card-${schoolId}`);
+    if (!card) return;
+
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    card.classList.remove('card-pulse');
+    void card.offsetWidth; // Force CSS reflow
+    card.classList.add('card-pulse');
+
+    const school = schools.find(s => s.id === schoolId);
+    if (school) {
+        addLogEntry(`🎯 Navigated to real-time waveform graph for [${school.name}].`, "SYS");
+    }
+};
+
+// --- 6. Interactive Control Handlers ---
+function updateFacilityPGA(schoolId, value) {
+    const school = schools.find(s => s.id === schoolId);
+    if (!school) return;
+
+    const oldStatus = school.status;
+    school.pga = parseFloat(value);
+    school.freq = parseFloat((12.0 - (school.pga * 10)).toFixed(1));
+
+    renderUI();
+
+    const newStatus = classifyStatus(school.pga);
+    if (oldStatus !== newStatus && newStatus === "Unsafe") {
+        addLogEntry(`🔴 CRITICAL: [${school.name}] Exceeded Unsafe Threshold (${school.pga}g)! Dispatching fallback SMS via SIM800L to LGU-DRRMO.`, "SMS");
+    } else if (oldStatus !== newStatus && newStatus === "Restricted Use") {
+        addLogEntry(`🟡 WARNING: [${school.name}] Structural shaking registered (${school.pga}g). Dispatched web dashboard alert to DepEd Engineer.`, "WEB");
+    }
+}
+
+function triggerPreset(type) {
+    schools.forEach(school => {
+        if (type === 'ambient') {
+            school.pga = parseFloat((Math.random() * 0.02 + 0.01).toFixed(2));
+        } else if (type === 'moderate') {
+            school.pga = parseFloat((Math.random() * 0.08 + 0.12).toFixed(2));
+        } else if (type === 'severe') {
+            const severity = school.typeWeight > 60 ? 0.42 : 0.32;
+            school.pga = parseFloat((severity + (Math.random() * 0.05)).toFixed(2));
+        }
+        school.freq = parseFloat((12.0 - (school.pga * 10)).toFixed(1));
+    });
+
+    renderUI();
+
+    if (type === 'ambient') addLogEntry("ℹ️ All sensor nodes normalized to ambient baseline readings.", "SYS");
+    if (type === 'moderate') addLogEntry("⚠️ Moderate earthquake simulated. Web alerts dispatched to DepEd SDO.", "WEB");
+    if (type === 'severe') addLogEntry("🚨 SEVERE EARTHQUAKE SIMULATED! Automated SMS alerts sent to LGU-DRRMO & DepEd Engineers for Top Priority sites.", "SMS");
+}
+
+// --- 7. ACCELEROMETER GRAPH RENDERING ENGINE ---
+function animateWaveforms() {
+    schools.forEach(school => {
+        const pga = school.pga;
+        const timeFactor = Date.now() * 0.015;
+        const mainOscillation = Math.sin(timeFactor * (school.freq / 4));
+
+        // X Axis (Lateral)
+        const noiseX = (pga * mainOscillation * 1.4) + ((Math.random() - 0.5) * pga * 0.6);
+        // Y Axis (Longitudinal)
+        const noiseY = (pga * Math.cos(timeFactor * (school.freq / 4)) * 1.4) + ((Math.random() - 0.5) * pga * 0.6);
+        // Z Axis (Vertical Dynamic Shaking centered at 0g)
+        const noiseZ = (pga * Math.sin(timeFactor * (school.freq / 3)) * 1.2) + ((Math.random() - 0.5) * pga * 0.5);
+
+        school.xBuffer.push(noiseX); school.xBuffer.shift();
+        school.yBuffer.push(noiseY); school.yBuffer.shift();
+        school.zBuffer.push(noiseZ); school.zBuffer.shift();
+
+        const canvas = document.getElementById(`canvas-${school.id}`);
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width = canvas.parentElement.clientWidth;
+        const h = canvas.height = canvas.parentElement.clientHeight;
+
+        // Domain bounds: -0.35g to +0.35g
+        const maxG = 0.35;
+        const leftMargin = 55;
+        const rightMargin = 15;
+        const topMargin = 25;
+        const bottomMargin = 20;
+
+        // 1. Background
+        ctx.fillStyle = '#020506';
+        ctx.fillRect(0, 0, w, h);
+
+        // 2. Custom Threshold Layout Lines
+        drawCustomThresholdLayout(ctx, w, h, leftMargin, rightMargin, topMargin, bottomMargin, maxG);
+
+        // 3. Draw Tri-Axial Signal Lines (X = RED, Y = GREEN, Z = BLUE)
+        drawSignalLine(ctx, school.xBuffer, '#ef4444', w, h, leftMargin, rightMargin, topMargin, bottomMargin, maxG, 2.0); // X-Axis (Red)
+        drawSignalLine(ctx, school.yBuffer, '#10b981', w, h, leftMargin, rightMargin, topMargin, bottomMargin, maxG, 2.0); // Y-Axis (Green)
+        drawSignalLine(ctx, school.zBuffer, '#3b82f6', w, h, leftMargin, rightMargin, topMargin, bottomMargin, maxG, 2.2); // Z-Axis (Blue)
+
+        // 4. Legend Overlay
+        drawLegendOverlay(ctx, w);
+    });
+
+    requestAnimationFrame(animateWaveforms);
+}
+
+// Helper: Threshold Grid & Axis Lines Matching Design
+function drawCustomThresholdLayout(ctx, w, h, leftMargin, rightMargin, topMargin, bottomMargin, maxG) {
+    const plotW = w - leftMargin - rightMargin;
+    const plotH = h - topMargin - bottomMargin;
+    const plotRight = w - rightMargin;
+
+    // Outer Bounding Box Frame
+    ctx.strokeStyle = 'rgba(149, 201, 220, 0.3)';
+    ctx.lineWidth = 2.0;
+    ctx.strokeRect(leftMargin, topMargin, plotW, plotH);
+
+    // Threshold Reference Lines
+    const levels = [
+        { g: 0.25,  label: "0.25g", color: "#ef4444", width: 1.8, dash: [] },      // Top Unsafe Threshold Line (Red)
+        { g: 0.08,  label: "0.08g", color: "#f59e0b", width: 1.8, dash: [] },      // Upper Restricted Threshold Line (Yellow)
+        { g: 0.00,  label: "0g",    color: "#95c9dc", width: 2.0, dash: [5, 5] },  // Center Baseline (Primary)
+        { g: -0.08, label: "0.08g", color: "#f59e0b", width: 1.8, dash: [] },      // Lower Restricted Threshold Line (Yellow)
+        { g: -0.25, label: "0.25g", color: "#ef4444", width: 1.8, dash: [] }       // Bottom Unsafe Threshold Line (Red)
+    ];
+
+    ctx.font = '12px monospace';
+    ctx.textAlign = 'right';
+
+    levels.forEach(item => {
+        const yRatio = (maxG - item.g) / (maxG * 2);
+        const y = topMargin + (yRatio * plotH);
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.strokeStyle = item.color;
+        ctx.lineWidth = item.width;
+        if (item.dash.length > 0) ctx.setLineDash(item.dash);
+        ctx.moveTo(leftMargin, y);
+        ctx.lineTo(plotRight, y);
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.fillStyle = item.color;
+        ctx.fillText(item.label, leftMargin - 8, y + 4);
+    });
+}
+
+// Helper: Glowing Signal Line Rendering with Context Clipping
+function drawSignalLine(ctx, buffer, color, w, h, leftMargin, rightMargin, topMargin, bottomMargin, maxG, lineWidth) {
+    const plotW = w - leftMargin - rightMargin;
+    const plotH = h - topMargin - bottomMargin;
+    const step = plotW / (buffer.length - 1);
+
+    ctx.save();
+
+    // CLIPPING MASK: Strictly confines rendering inside the bounding box
+    ctx.beginPath();
+    ctx.rect(leftMargin, topMargin, plotW, plotH);
+    ctx.clip(); // Lines exceeding 0.35g or 0.25g will be trimmed neatly at the box wall
+
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 6;
+
+    for (let i = 0; i < buffer.length; i++) {
+        const x = leftMargin + (i * step);
+        const gVal = buffer[i];
+        
+        const yRatio = (maxG - gVal) / (maxG * 2);
+        const y = topMargin + (yRatio * plotH);
+
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.restore();
+}
+
+// Helper: Top-Right Graph Legend
+function drawLegendOverlay(ctx, w) {
+    ctx.font = '12px system-ui, sans-serif';
+    ctx.textAlign = 'right';
+
+    ctx.fillStyle = '#ef4444';
+    ctx.fillText('━ X (Lat)', w - 140, 16);
+
+    ctx.fillStyle = '#10b981';
+    ctx.fillText('━ Y (Long)', w - 75, 16);
+
+    ctx.fillStyle = '#3b82f6';
+    ctx.fillText('━ Z (Vert)', w - 15, 16);
+}
+
+// --- 8. Activity Log Helper ---
+function addLogEntry(msg, type) {
+    const logBox = document.getElementById('activityLog');
+    const time = new Date().toLocaleTimeString();
+    let badge = `<span class="text-primary">[SYSTEM]</span>`;
+    if (type === "SMS") badge = `<span class="text-accent">[GSM SMS DISPATCH]</span>`;
+    if (type === "WEB") badge = `<span class="text-secondary">[WEB ALERT]</span>`;
+
+    const item = `
+        <div class="log-item">
+            <div><span class="log-time">${time}</span> ${badge} ${msg}</div>
+            <span style="font-size:14px; color:var(--text-muted);">ESP32 -> SIM800L</span>
+        </div>
+    `;
+    logBox.innerHTML = item + logBox.innerHTML;
+}
+
+// Initial Initialization
+document.addEventListener('DOMContentLoaded', () => {
+    renderUI();
+    addLogEntry("System active. Connected to 4 remote school monitoring nodes via local network.", "SYS");
+    requestAnimationFrame(animateWaveforms);
 });
