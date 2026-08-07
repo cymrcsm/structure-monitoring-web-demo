@@ -1,27 +1,25 @@
+/* ==========================================================================
+   Clean, Professional Data Dashboard Design System
+   ========================================================================== */
 
 :root {
+    /* Core Palette provided by user */
     --bg-main: #040809;
-    --card-bg: rgba(10, 20, 23, 0.75);
-    --card-bg-solid: #0a1417;
-    --card-border: rgba(149, 201, 220, 0.25);
-    --card-border-hover: rgba(43, 179, 229, 0.4);
-    
     --text-main: #e6edef;
-    --text-muted: #8daab6;
-
     --primary: #95c9dc;
-    --primary-glow: rgba(149, 201, 220, 0.25);
-    
     --secondary: #1d6884;
-    --secondary-glow: rgba(29, 104, 132, 0.35);
-    
     --accent: #2bb3e5;
-    --accent-glow: rgba(43, 179, 229, 0.35);
+
+    /* Structural Colors (Solid, no glassmorphism) */
+    --card-bg: #0a1012;         /* Solid dark surface for cards */
+    --card-border: #14282f;     /* Subtle structure lines */
+    --row-hover: #0c1a1e;       /* Subtle hover state */
+    --text-muted: #7899a6;      /* De-emphasized text */
 
     /* Dedicated Status Colors */
-    --status-safe: #10b981;        /* Green */
-    --status-restricted: #f59e0b;  /* Yellow */
-    --status-unsafe: #ef4444;      /* Red */
+    --status-safe: #10b981;
+    --status-restricted: #f59e0b;
+    --status-unsafe: #ef4444;
 }
 
 * {
@@ -33,11 +31,11 @@
 body {
     background-color: var(--bg-main);
     color: var(--text-main);
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-size: 18px;
     line-height: 1.5;
     min-height: 100vh;
-    padding-bottom: 3rem;
+    padding-bottom: 4rem;
 }
 
 .container {
@@ -46,10 +44,7 @@ body {
     padding: 0 1.5rem;
 }
 
-/* ==========================================================================
-   Typography Hierarchy
-   ========================================================================== */
-
+/* Typography */
 .brand-title, .section-heading {
     font-size: 32px;
     font-weight: 700;
@@ -59,13 +54,9 @@ body {
 }
 
 .card-subtitle {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text-main);
-}
-
-.body-text, p {
-    font-size: 18px;
+    font-size: 18px; /* Clean, not oversized */
+    font-weight: 600;
+    color: var(--primary);
 }
 
 .small-text, .brand-subtitle, .metric-label, .disclaimer-text, .table-hint, .log-item {
@@ -73,18 +64,13 @@ body {
     font-weight: 400;
 }
 
-/* ==========================================================================
-   Header Navigation & Spacing
-   ========================================================================== */
-
+/* Header */
 .app-header {
-    background: rgba(4, 8, 9, 0.85);
+    background: #040809;
     border-bottom: 1px solid var(--card-border);
     position: sticky;
     top: 0;
     z-index: 100;
-    backdrop-filter: blur(12px);
-    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.6);
     padding: 0 1.5rem;
 }
 
@@ -93,8 +79,6 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 1rem 0;
-    flex-wrap: wrap;
-    gap: 1rem;
     max-width: 1400px;
     margin: 0 auto;
 }
@@ -106,46 +90,46 @@ body {
 }
 
 .brand-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    border: 1px solid var(--accent);
-    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 15px var(--accent-glow);
 }
 
 .brand-subtitle {
     color: var(--text-muted);
 }
 
-/* Hardware Telemetry Outlined Badges */
+/* Status Pills (Header) */
 .hardware-status {
     display: flex;
     gap: 0.75rem;
-    flex-wrap: wrap;
 }
 
 .status-pill {
-    background: transparent;
     border: 1px solid var(--card-border);
-    padding: 0.4rem 0.85rem;
-    border-radius: 8px;
-    font-size: 14px;
+    background: var(--card-bg);
+    padding: 0.35rem 0.75rem;
+    border-radius: 4px;
+    font-size: 13px;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    color: var(--text-main);
+    gap: 0.4rem;
+    color: var(--text-muted);
 }
 
-/* ==========================================================================
-   Layout Containers & Outlined Cards
-   ========================================================================== */
+.status-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--primary);
+}
+.indicator-accent {
+    background: var(--accent);
+}
 
+/* Cards & Layout */
 .main-layout {
-    margin-top: 1.5rem;
+    margin-top: 2rem;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -154,11 +138,9 @@ body {
 .card {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
-    border-radius: 16px;
+    border-radius: 6px; /* Professional, less rounded */
     padding: 1.5rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(10px);
-    transition: border-color 0.3s, box-shadow 0.3s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Standard drop shadow, NO glowing */
 }
 
 .card-header-flex {
@@ -166,116 +148,76 @@ body {
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 1.25rem;
-    flex-wrap: wrap;
-    gap: 1rem;
 }
 
-/* Legal Disclaimer Callout */
+/* Disclaimer */
 .disclaimer-card {
-    background: rgba(29, 104, 132, 0.15);
+    background: rgba(29, 104, 132, 0.1);
     border: 1px solid var(--secondary);
-    border-radius: 12px;
+    border-radius: 6px;
     padding: 0.85rem 1.25rem;
     display: flex;
     align-items: center;
     gap: 1rem;
-    box-shadow: 0 0 20px var(--secondary-glow);
 }
+.disclaimer-icon { font-size: 1.25rem; }
 
-.disclaimer-text {
-    color: var(--text-main);
-    line-height: 1.4;
-}
-
-/* ==========================================================================
-   Simulation Control Bar
-   ========================================================================== */
-
-.sim-card {
-    background: linear-gradient(135deg, rgba(10, 20, 23, 0.9), rgba(4, 8, 9, 0.9));
-    border: 1px solid var(--primary);
-    box-shadow: 0 0 25px var(--primary-glow);
-}
-
+/* Control Panel Buttons */
 .sim-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
 }
 
 .sim-actions {
     display: flex;
-    gap: 0.65rem;
-    flex-wrap: wrap;
-}
-
-/* Transparent Outlined Buttons */
-.btn {
-    display: inline-flex;
-    align-items: center;
     gap: 0.5rem;
-    padding: 0.6rem 1.1rem;
-    border-radius: 8px;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
     font-size: 14px;
-    font-weight: 700;
-    border: 1px solid transparent;
-    background: transparent;
-    color: var(--text-main);
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.25s ease;
+    border: 1px solid transparent;
+    transition: background 0.2s;
 }
 
-.btn:active { transform: scale(0.96); }
-
-.btn-outline {
-    border-color: var(--primary);
-    color: var(--primary);
-}
-.btn-outline:hover {
-    background: var(--primary);
-    color: #040809;
-    box-shadow: 0 0 15px var(--primary-glow);
-}
-
-.btn-secondary {
-    border-color: var(--secondary);
+.btn-default {
+    background: #112227;
     color: var(--text-main);
+    border-color: var(--card-border);
 }
-.btn-secondary:hover {
-    background: var(--secondary);
-    color: #ffffff;
-    box-shadow: 0 0 15px var(--secondary-glow);
-}
+.btn-default:hover { background: #1a333b; }
 
-.btn-accent {
-    border-color: var(--accent);
-    color: var(--text-main);
+.btn-warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--status-restricted);
+    border-color: rgba(245, 158, 11, 0.3);
 }
-.btn-accent:hover {
-    background: var(--accent);
-    color: #ffffff;
-    box-shadow: 0 0 20px var(--accent-glow);
+.btn-warning:hover { background: rgba(245, 158, 11, 0.25); }
+
+.btn-danger {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--status-unsafe);
+    border-color: rgba(239, 68, 68, 0.3);
 }
+.btn-danger:hover { background: rgba(239, 68, 68, 0.25); }
 
-/* ==========================================================================
-   Prioritization Table (14px Text Size)
-   ========================================================================== */
-
+/* Table */
 .table-wrapper {
     overflow-x: auto;
-    border-radius: 10px;
     border: 1px solid var(--card-border);
+    border-radius: 4px;
 }
 
 .table-hint {
-    font-size: 14px;
-    color: var(--primary);
-    background: rgba(149, 201, 220, 0.1);
-    padding: 0.4rem 0.85rem;
-    border-radius: 20px;
-    border: 1px solid var(--primary);
+    font-size: 13px;
+    color: var(--text-muted);
+    border: 1px solid var(--card-border);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
 }
 
 .data-table {
@@ -286,38 +228,32 @@ body {
 }
 
 .data-table th {
-    background: rgba(4, 8, 9, 0.9);
+    background: #081012;
     color: var(--text-muted);
     padding: 0.85rem 1rem;
     border-bottom: 1px solid var(--card-border);
+    font-weight: 600;
     text-transform: uppercase;
-    font-size: 14px;
+    font-size: 12px;
     letter-spacing: 0.05em;
-    white-space: nowrap;
 }
 
 .data-table td {
     padding: 0.85rem 1rem;
-    border-bottom: 1px solid rgba(149, 201, 220, 0.15);
-    transition: background-color 0.2s;
-    white-space: nowrap;
+    border-bottom: 1px solid var(--card-border);
     font-size: 14px;
 }
 
-/* Clickable Table Rows */
 .clickable-row {
     cursor: pointer;
+    transition: background-color 0.15s;
 }
 
 .clickable-row:hover {
-    background: rgba(149, 201, 220, 0.12) !important;
+    background: var(--row-hover);
 }
 
-.rank-top {
-    background: rgba(239, 68, 68, 0.1);
-}
-
-/* Score Bar Visual Pill inside Table */
+/* Score Bar */
 .score-badge-container {
     display: flex;
     align-items: center;
@@ -325,24 +261,19 @@ body {
 }
 
 .score-bar-bg {
-    width: 80px;
-    height: 8px;
-    background: rgba(4, 8, 9, 0.8);
-    border: 1px solid var(--card-border);
-    border-radius: 4px;
-    overflow: hidden;
+    width: 60px;
+    height: 6px;
+    background: #112227;
+    border-radius: 2px;
 }
 
 .score-bar-fill {
     height: 100%;
     background: var(--primary);
-    border-radius: 4px;
+    border-radius: 2px;
 }
 
-/* ==========================================================================
-   Activity Telemetry Feed
-   ========================================================================== */
-
+/* Activity Feed */
 .log-header {
     display: flex;
     justify-content: space-between;
@@ -360,29 +291,26 @@ body {
 
 .log-list::-webkit-scrollbar { width: 6px; }
 .log-list::-webkit-scrollbar-track { background: var(--bg-main); }
-.log-list::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 3px; }
+.log-list::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 3px; }
 
 .log-item {
-    background: rgba(4, 8, 9, 0.8);
-    padding: 0.65rem 1rem;
-    border-radius: 8px;
+    background: #081012;
+    padding: 0.5rem 0.85rem;
+    border-radius: 4px;
     border: 1px solid var(--card-border);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .log-time {
     color: var(--text-muted);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-family: monospace;
     margin-right: 0.5rem;
 }
 
-/* ==========================================================================
-   Bottom Facility Cards Grid & Large Canvas Graphs
-   ========================================================================== */
-
+/* Bottom Grid & Cards */
 .section-divider {
     margin-top: 1rem;
     margin-bottom: -0.25rem;
@@ -392,94 +320,79 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
     gap: 1.5rem;
-    margin-bottom: 2rem;
 }
 
 .facility-card {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
-    transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+    gap: 1rem;
 }
 
-/* Facility Left Borders Match ATC-20 Risk Status */
-.facility-card.safe { border-left: 6px solid var(--status-safe); }
-.facility-card.restricted { border-left: 6px solid var(--status-restricted); }
-.facility-card.unsafe {
-    border-left: 6px solid var(--status-unsafe);
-    box-shadow: 0 0 25px rgba(239, 68, 68, 0.35);
-}
+/* Solid Left Borders for Status */
+.facility-card.safe { border-left: 4px solid var(--status-safe); }
+.facility-card.restricted { border-left: 4px solid var(--status-restricted); }
+.facility-card.unsafe { border-left: 4px solid var(--status-unsafe); }
 
-/* Navigation Pulse Glow Animation */
+/* The ONLY glow in the entire app - requested pulse animation */
 .facility-card.card-pulse {
-    animation: pulseBorder 1.5s ease-in-out 2;
+    animation: pulseTarget 1.5s ease-in-out 2;
 }
 
-@keyframes pulseBorder {
-    0% { transform: scale(1); box-shadow: 0 0 0px var(--accent); }
-    50% { transform: scale(1.02); box-shadow: 0 0 35px var(--accent); border-color: var(--accent); }
-    100% { transform: scale(1); box-shadow: 0 0 0px var(--accent); }
+@keyframes pulseTarget {
+    0% { transform: scale(1); box-shadow: 0 0 0px transparent; border-color: var(--card-border); }
+    50% { transform: scale(1.02); box-shadow: 0 0 20px var(--accent); border-color: var(--accent); }
+    100% { transform: scale(1); box-shadow: 0 0 0px transparent; border-color: var(--card-border); }
 }
 
 .facility-name {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text-main);
+    font-size: 18px;
+    font-weight: 600;
 }
 
 .facility-meta {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--text-muted);
-    margin-top: 2px;
 }
 
-/* Status Badges: Safe (Green), Restricted (Yellow), Unsafe (Red) */
+/* Status Badges */
 .status-tag {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap;
-    padding: 0.35rem 0.85rem;
-    border-radius: 8px;
-    font-size: 14px;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    line-height: 1;
-    background: transparent;
+    background: #081012;
 }
 
 .tag-safe { color: var(--status-safe); border: 1px solid var(--status-safe); }
 .tag-restricted { color: var(--status-restricted); border: 1px solid var(--status-restricted); }
-.tag-unsafe { color: var(--status-unsafe); border: 1px solid var(--status-unsafe); animation: flash 1s infinite alternate; }
-
-@keyframes flash { 0% { opacity: 1; } 100% { opacity: 0.4; } }
+.tag-unsafe { color: var(--status-unsafe); border: 1px solid var(--status-unsafe); }
 
 /* Live Metrics Row */
 .metrics-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 0.5rem;
-    background: rgba(4, 8, 9, 0.9);
-    padding: 0.85rem;
-    border-radius: 10px;
+    background: #081012;
+    padding: 0.75rem;
+    border-radius: 4px;
     border: 1px solid var(--card-border);
     text-align: center;
 }
 
-.metric-label { font-size: 14px; color: var(--text-muted); text-transform: uppercase; }
-.metric-val { font-size: 24px; font-weight: 800; }
+.metric-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; }
+.metric-val { font-size: 20px; font-weight: 600; color: var(--text-main); }
 
-/* EXPANDED 340px ACCELEROMETER CANVAS BOX */
+/* CRISP CANVAS BOX */
 .canvas-box {
     width: 100%;
     height: 340px;
-    background: #020506;
-    border-radius: 12px;
+    background: #020506; /* Almost pure black for oscilloscope contrast */
+    border-radius: 4px;
     border: 1px solid var(--card-border);
     overflow: hidden;
     position: relative;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.9);
+    /* Removed inset box-shadow glow completely */
 }
 
 canvas { width: 100%; height: 100%; display: block; }
@@ -489,27 +402,24 @@ canvas { width: 100%; height: 100%; display: block; }
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    background: rgba(4, 8, 9, 0.6);
-    padding: 0.85rem;
-    border-radius: 10px;
+    background: #081012;
+    padding: 0.75rem;
+    border-radius: 4px;
     border: 1px solid var(--card-border);
 }
 
-.slider-label { font-size: 14px; color: var(--text-muted); display: flex; justify-content: space-between; }
+.slider-label { font-size: 13px; color: var(--text-muted); display: flex; justify-content: space-between; }
 
 input[type=range] {
     width: 100%;
-    height: 6px;
-    background: rgba(149, 201, 220, 0.2);
-    border-radius: 3px;
+    height: 4px;
+    background: #14282f;
+    border-radius: 2px;
     outline: none;
-    accent-color: var(--accent);
+    accent-color: var(--primary);
     cursor: pointer;
 }
 
-/* Typography Helpers */
 .text-primary { color: var(--primary); }
-.text-secondary { color: var(--secondary); }
 .text-accent { color: var(--accent); }
 .text-muted { color: var(--text-muted); }
-.text-right { text-align: right; }

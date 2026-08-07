@@ -3,17 +3,17 @@ const schools = [
     {
         id: 1,
         name: "Manhilo Elementary School (Bldg A)",
-        age: 28, // years
-        occupancy: 420, // students & personnel
+        age: 28,
+        occupancy: 420,
         type: "Masonry / Concrete",
-        typeWeight: 70, // Vulnerability weight
+        typeWeight: 70,
         pga: 0.02,
         freq: 11.5,
         status: "Safe",
         score: 0,
         xBuffer: new Array(60).fill(0.0),
         yBuffer: new Array(60).fill(0.0),
-        zBuffer: new Array(60).fill(0.0) // Dynamic AC acceleration centered at 0g
+        zBuffer: new Array(60).fill(0.0)
     },
     {
         id: 2,
@@ -62,24 +62,23 @@ const schools = [
     }
 ];
 
-// --- 1. Weighted Prioritization Algorithm ---
+// 1. Weighted Prioritization Algorithm
 function computePriorityScore(school) {
     const pgaFactor = Math.min((school.pga / 0.50) * 100, 100) * 0.40;
     const ageFactor = Math.min((school.age / 40) * 100, 100) * 0.25;
     const occFactor = Math.min((school.occupancy / 1000) * 100, 100) * 0.20;
     const typeFactor = school.typeWeight * 0.15;
-
     return parseFloat((pgaFactor + ageFactor + occFactor + typeFactor).toFixed(1));
 }
 
-// --- 2. ATC-20 / PHIVOLCS Classification Engine ---
+// 2. ATC-20 Classification
 function classifyStatus(pga) {
     if (pga >= 0.25) return "Unsafe";
     if (pga >= 0.08) return "Restricted Use";
     return "Safe";
 }
 
-// --- 3. UI Renderer for Bottom Facility Cards ---
+// 3. UI Renderer
 function renderUI() {
     const grid = document.getElementById('facilityGrid');
     grid.innerHTML = '';
@@ -106,28 +105,26 @@ function renderUI() {
                 <div class="metrics-row">
                     <div>
                         <div class="metric-label">Peak Accel</div>
-                        <div class="metric-val text-primary">${school.pga.toFixed(2)} g</div>
+                        <div class="metric-val">${school.pga.toFixed(2)} g</div>
                     </div>
                     <div>
                         <div class="metric-label">Dom. Freq</div>
-                        <div class="metric-val text-accent">${school.freq.toFixed(1)} Hz</div>
+                        <div class="metric-val">${school.freq.toFixed(1)} Hz</div>
                     </div>
                     <div>
-                        <div class="metric-label">Priority Score</div>
+                        <div class="metric-label">Score</div>
                         <div class="metric-val text-primary">${school.score} pts</div>
                     </div>
                 </div>
 
-                <!-- Custom Threshold Oscilloscope Canvas (340px) -->
                 <div class="canvas-box">
                     <canvas id="canvas-${school.id}"></canvas>
                 </div>
 
-                <!-- Individual Shaking Level Control Slider -->
                 <div class="slider-box">
                     <div class="slider-label">
-                        <span>Simulate Acceleration for this Facility:</span>
-                        <strong class="text-accent">${school.pga.toFixed(2)} g</strong>
+                        <span>Simulation Override:</span>
+                        <strong class="text-primary">${school.pga.toFixed(2)} g</strong>
                     </div>
                     <input type="range" min="0.01" max="0.50" step="0.01" value="${school.pga}" 
                            oninput="updateFacilityPGA(${school.id}, this.value)">
@@ -140,7 +137,7 @@ function renderUI() {
     renderTable();
 }
 
-// --- 4. Render Prioritization Ranking Table with Click-to-Scroll ---
+// 4. Render Table
 function renderTable() {
     const sorted = [...schools].sort((a, b) => b.score - a.score);
     const tbody = document.getElementById('priorityTableBody');
@@ -156,16 +153,16 @@ function renderTable() {
 
         const rowHTML = `
             <tr class="clickable-row ${isTopAlert ? 'rank-top' : ''}" onclick="scrollToFacilityGraph(${school.id})">
-                <td class="text-primary" style="font-weight: 800; font-size: 14px;">#${index + 1} ${isTopAlert ? '⚠️ PRIORITY 1' : ''}</td>
-                <td style="color:#e6edef; font-weight:700; font-size: 14px;">${school.name}</td>
-                <td style="font-family:monospace; font-size: 14px;" class="${school.pga >= 0.25 ? 'text-accent' : ''}">${school.pga.toFixed(2)} g</td>
-                <td style="font-family:monospace; font-size: 14px;">${school.freq.toFixed(1)} Hz</td>
-                <td style="font-size: 14px;">${school.age} yrs</td>
-                <td style="font-size: 14px;">${school.occupancy} occupants</td>
+                <td style="font-weight: 600;">#${index + 1}</td>
+                <td style="color:#e6edef; font-weight:600;">${school.name}</td>
+                <td style="font-family:monospace;">${school.pga.toFixed(2)} g</td>
+                <td style="font-family:monospace;">${school.freq.toFixed(1)} Hz</td>
+                <td>${school.age} yrs</td>
+                <td>${school.occupancy}</td>
                 <td><span class="status-tag ${tagClass}">${school.status}</span></td>
                 <td>
                     <div class="score-badge-container">
-                        <span class="text-primary" style="font-weight:800; min-width: 45px; font-size: 14px;">${school.score} pts</span>
+                        <span style="font-weight:600; min-width: 40px;">${school.score}</span>
                         <div class="score-bar-bg">
                             <div class="score-bar-fill" style="width: ${scorePercent}%;"></div>
                         </div>
@@ -177,7 +174,7 @@ function renderTable() {
     });
 }
 
-// --- 5. Interactive Scroll-to-Graph Function ---
+// 5. Scroll and Pulse function
 window.scrollToFacilityGraph = function(schoolId) {
     const card = document.getElementById(`facility-card-${schoolId}`);
     if (!card) return;
@@ -190,11 +187,11 @@ window.scrollToFacilityGraph = function(schoolId) {
 
     const school = schools.find(s => s.id === schoolId);
     if (school) {
-        addLogEntry(`🎯 Navigated to real-time waveform graph for [${school.name}].`, "SYS");
+        addLogEntry(`Navigated to waveform graph for [${school.name}].`, "SYS");
     }
 };
 
-// --- 6. Interactive Control Handlers ---
+// 6. Interactive Controls
 function updateFacilityPGA(schoolId, value) {
     const school = schools.find(s => s.id === schoolId);
     if (!school) return;
@@ -207,9 +204,9 @@ function updateFacilityPGA(schoolId, value) {
 
     const newStatus = classifyStatus(school.pga);
     if (oldStatus !== newStatus && newStatus === "Unsafe") {
-        addLogEntry(`🔴 CRITICAL: [${school.name}] Exceeded Unsafe Threshold (${school.pga}g)! Dispatching fallback SMS via SIM800L to LGU-DRRMO.`, "SMS");
+        addLogEntry(`CRITICAL: [${school.name}] Unsafe threshold exceeded. SMS sent.`, "SMS");
     } else if (oldStatus !== newStatus && newStatus === "Restricted Use") {
-        addLogEntry(`🟡 WARNING: [${school.name}] Structural shaking registered (${school.pga}g). Dispatched web dashboard alert to DepEd Engineer.`, "WEB");
+        addLogEntry(`WARNING: [${school.name}] Restricted use threshold crossed.`, "WEB");
     }
 }
 
@@ -228,12 +225,12 @@ function triggerPreset(type) {
 
     renderUI();
 
-    if (type === 'ambient') addLogEntry("ℹ️ All sensor nodes normalized to ambient baseline readings.", "SYS");
-    if (type === 'moderate') addLogEntry("⚠️ Moderate earthquake simulated. Web alerts dispatched to DepEd SDO.", "WEB");
-    if (type === 'severe') addLogEntry("🚨 SEVERE EARTHQUAKE SIMULATED! Automated SMS alerts sent to LGU-DRRMO & DepEd Engineers for Top Priority sites.", "SMS");
+    if (type === 'ambient') addLogEntry("All sensor nodes normalized to ambient.", "SYS");
+    if (type === 'moderate') addLogEntry("Moderate earthquake simulated.", "WEB");
+    if (type === 'severe') addLogEntry("SEVERE EARTHQUAKE SIMULATED! SMS alerts sent.", "SMS");
 }
 
-// --- 7. ACCELEROMETER GRAPH RENDERING ENGINE ---
+// 7. Graph Engine
 function animateWaveforms() {
     schools.forEach(school => {
         const pga = school.pga;
@@ -244,7 +241,7 @@ function animateWaveforms() {
         const noiseX = (pga * mainOscillation * 1.4) + ((Math.random() - 0.5) * pga * 0.6);
         // Y Axis (Longitudinal)
         const noiseY = (pga * Math.cos(timeFactor * (school.freq / 4)) * 1.4) + ((Math.random() - 0.5) * pga * 0.6);
-        // Z Axis (Vertical Dynamic Shaking centered at 0g)
+        // Z Axis (Vertical)
         const noiseZ = (pga * Math.sin(timeFactor * (school.freq / 3)) * 1.2) + ((Math.random() - 0.5) * pga * 0.5);
 
         school.xBuffer.push(noiseX); school.xBuffer.shift();
@@ -258,58 +255,53 @@ function animateWaveforms() {
         const w = canvas.width = canvas.parentElement.clientWidth;
         const h = canvas.height = canvas.parentElement.clientHeight;
 
-        // Domain bounds: -0.35g to +0.35g
         const maxG = 0.35;
-        const leftMargin = 55;
+        const leftMargin = 50;
         const rightMargin = 15;
         const topMargin = 25;
         const bottomMargin = 20;
 
-        // 1. Background
-        ctx.fillStyle = '#020506';
+        ctx.fillStyle = '#020506'; // Solid deep dark background
         ctx.fillRect(0, 0, w, h);
 
-        // 2. Custom Threshold Layout Lines
         drawCustomThresholdLayout(ctx, w, h, leftMargin, rightMargin, topMargin, bottomMargin, maxG);
 
-        // 3. Draw Tri-Axial Signal Lines (X = RED, Y = GREEN, Z = BLUE)
-        drawSignalLine(ctx, school.xBuffer, '#ef4444', w, h, leftMargin, rightMargin, topMargin, bottomMargin, maxG, 2.0); // X-Axis (Red)
-        drawSignalLine(ctx, school.yBuffer, '#10b981', w, h, leftMargin, rightMargin, topMargin, bottomMargin, maxG, 2.0); // Y-Axis (Green)
-        drawSignalLine(ctx, school.zBuffer, '#3b82f6', w, h, leftMargin, rightMargin, topMargin, bottomMargin, maxG, 2.2); // Z-Axis (Blue)
+        // Crisp, un-blurred lines (X = Red, Y = Green, Z = Blue)
+        drawSignalLine(ctx, school.xBuffer, '#ef4444', w, h, leftMargin, rightMargin, topMargin, bottomMargin, maxG);
+        drawSignalLine(ctx, school.yBuffer, '#10b981', w, h, leftMargin, rightMargin, topMargin, bottomMargin, maxG);
+        drawSignalLine(ctx, school.zBuffer, '#3b82f6', w, h, leftMargin, rightMargin, topMargin, bottomMargin, maxG);
 
-        // 4. Legend Overlay
         drawLegendOverlay(ctx, w);
     });
 
     requestAnimationFrame(animateWaveforms);
 }
 
-// Helper: Threshold Grid & Axis Lines Matching Design
+// Crisp Threshold Layout
 function drawCustomThresholdLayout(ctx, w, h, leftMargin, rightMargin, topMargin, bottomMargin, maxG) {
     const plotW = w - leftMargin - rightMargin;
     const plotH = h - topMargin - bottomMargin;
     const plotRight = w - rightMargin;
 
-    // Outer Bounding Box Frame
-    ctx.strokeStyle = 'rgba(149, 201, 220, 0.3)';
-    ctx.lineWidth = 2.0;
+    // Solid Inner Frame
+    ctx.strokeStyle = '#14282f';
+    ctx.lineWidth = 1.0;
     ctx.strokeRect(leftMargin, topMargin, plotW, plotH);
 
-    // Threshold Reference Lines
     const levels = [
-        { g: 0.25,  label: "0.25g", color: "#ef4444", width: 1.8, dash: [] },      // Top Unsafe Threshold Line (Red)
-        { g: 0.08,  label: "0.08g", color: "#f59e0b", width: 1.8, dash: [] },      // Upper Restricted Threshold Line (Yellow)
-        { g: 0.00,  label: "0g",    color: "#95c9dc", width: 2.0, dash: [5, 5] },  // Center Baseline (Primary)
-        { g: -0.08, label: "0.08g", color: "#f59e0b", width: 1.8, dash: [] },      // Lower Restricted Threshold Line (Yellow)
-        { g: -0.25, label: "0.25g", color: "#ef4444", width: 1.8, dash: [] }       // Bottom Unsafe Threshold Line (Red)
+        { g: 0.25,  label: "0.25g", color: "#ef4444", width: 1.0, dash: [] },
+        { g: 0.08,  label: "0.08g", color: "#f59e0b", width: 1.0, dash: [] },
+        { g: 0.00,  label: "0g",    color: "#7899a6", width: 1.0, dash: [4, 4] },
+        { g: -0.08, label: "0.08g", color: "#f59e0b", width: 1.0, dash: [] },
+        { g: -0.25, label: "0.25g", color: "#ef4444", width: 1.0, dash: [] }
     ];
 
-    ctx.font = '12px monospace';
+    ctx.font = '11px monospace';
     ctx.textAlign = 'right';
 
     levels.forEach(item => {
         const yRatio = (maxG - item.g) / (maxG * 2);
-        const y = topMargin + (yRatio * plotH);
+        const y = Math.round(topMargin + (yRatio * plotH)) + 0.5; // Sharp line trick
 
         ctx.save();
         ctx.beginPath();
@@ -326,25 +318,22 @@ function drawCustomThresholdLayout(ctx, w, h, leftMargin, rightMargin, topMargin
     });
 }
 
-// Helper: Glowing Signal Line Rendering with Context Clipping
-function drawSignalLine(ctx, buffer, color, w, h, leftMargin, rightMargin, topMargin, bottomMargin, maxG, lineWidth) {
+// Solid Signal Line (Removed shadowBlur and shadowColor completely)
+function drawSignalLine(ctx, buffer, color, w, h, leftMargin, rightMargin, topMargin, bottomMargin, maxG) {
     const plotW = w - leftMargin - rightMargin;
     const plotH = h - topMargin - bottomMargin;
     const step = plotW / (buffer.length - 1);
 
     ctx.save();
 
-    // CLIPPING MASK: Strictly confines rendering inside the bounding box
+    // Clipping Mask
     ctx.beginPath();
     ctx.rect(leftMargin, topMargin, plotW, plotH);
-    ctx.clip(); // Lines exceeding 0.35g or 0.25g will be trimmed neatly at the box wall
+    ctx.clip(); 
 
     ctx.beginPath();
     ctx.strokeStyle = color;
-    ctx.lineWidth = lineWidth;
-
-    ctx.shadowColor = color;
-    ctx.shadowBlur = 6;
+    ctx.lineWidth = 1.5; // Clean, thin technical line
 
     for (let i = 0; i < buffer.length; i++) {
         const x = leftMargin + (i * step);
@@ -360,9 +349,9 @@ function drawSignalLine(ctx, buffer, color, w, h, leftMargin, rightMargin, topMa
     ctx.restore();
 }
 
-// Helper: Top-Right Graph Legend
+// Top-Right Legend
 function drawLegendOverlay(ctx, w) {
-    ctx.font = '12px system-ui, sans-serif';
+    ctx.font = '11px system-ui, sans-serif';
     ctx.textAlign = 'right';
 
     ctx.fillStyle = '#ef4444';
@@ -375,26 +364,24 @@ function drawLegendOverlay(ctx, w) {
     ctx.fillText('━ Z (Vert)', w - 15, 16);
 }
 
-// --- 8. Activity Log Helper ---
+// 8. Log Helper
 function addLogEntry(msg, type) {
     const logBox = document.getElementById('activityLog');
     const time = new Date().toLocaleTimeString();
-    let badge = `<span class="text-primary">[SYSTEM]</span>`;
-    if (type === "SMS") badge = `<span class="text-accent">[GSM SMS DISPATCH]</span>`;
-    if (type === "WEB") badge = `<span class="text-secondary">[WEB ALERT]</span>`;
+    let badge = `<span style="color:#95c9dc">[SYS]</span>`;
+    if (type === "SMS") badge = `<span style="color:#ef4444">[GSM]</span>`;
+    if (type === "WEB") badge = `<span style="color:#f59e0b">[WEB]</span>`;
 
     const item = `
         <div class="log-item">
             <div><span class="log-time">${time}</span> ${badge} ${msg}</div>
-            <span style="font-size:14px; color:var(--text-muted);">ESP32 -> SIM800L</span>
         </div>
     `;
     logBox.innerHTML = item + logBox.innerHTML;
 }
 
-// Initial Initialization
 document.addEventListener('DOMContentLoaded', () => {
     renderUI();
-    addLogEntry("System active. Connected to 4 remote school monitoring nodes via local network.", "SYS");
+    addLogEntry("System active. Monitoring 4 nodes.", "SYS");
     requestAnimationFrame(animateWaveforms);
 });
